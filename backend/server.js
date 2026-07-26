@@ -3,6 +3,8 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 
+const authRoutes = require('./src/routes/auth')
+
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -10,11 +12,14 @@ const PORT = process.env.PORT || 3000
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite frontend URL
-  credentials: true               // allow cookies
+  origin: 'http://localhost:5173',
+  credentials: true
 }))
 
-// Health check route
+// Routes
+app.use('/api/auth', authRoutes)
+
+// Health check
 app.get('/', (req, res) => {
   res.json({ message: '✅ Centsible API is running' })
 })
