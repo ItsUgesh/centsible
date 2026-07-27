@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const passport = require('passport')
 
 const authRoutes = require('./src/routes/auth')
 
@@ -15,6 +16,7 @@ app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
 }))
+app.use(passport.initialize())
 
 // Routes
 app.use('/api/auth', authRoutes)
