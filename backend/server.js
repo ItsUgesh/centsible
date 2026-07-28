@@ -3,6 +3,8 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const passport = require('passport')
+const categoryRoutes = require('./src/routes/categories')
+const transactionRoutes = require('./src/routes/transactions')
 
 const authRoutes = require('./src/routes/auth')
 
@@ -20,6 +22,8 @@ app.use(passport.initialize())
 
 // Routes
 app.use('/api/auth', authRoutes)
+app.use('/api/categories', categoryRoutes)
+app.use('/api/transactions', transactionRoutes)
 
 // Health check
 app.get('/', (req, res) => {
