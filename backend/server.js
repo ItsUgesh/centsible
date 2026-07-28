@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser')
 const passport = require('passport')
 const categoryRoutes = require('./src/routes/categories')
 const transactionRoutes = require('./src/routes/transactions')
+const dashboardRoutes = require('./src/routes/dashboard')
 
 const authRoutes = require('./src/routes/auth')
 
@@ -24,6 +25,7 @@ app.use(passport.initialize())
 app.use('/api/auth', authRoutes)
 app.use('/api/categories', categoryRoutes)
 app.use('/api/transactions', transactionRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 
 // Health check
 app.get('/', (req, res) => {
