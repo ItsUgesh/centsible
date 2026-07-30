@@ -1,8 +1,29 @@
+import { Routes, Route, Navigate } from 'react-router-dom'
+import PrivateRoute from './components/PrivateRoute'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Transactions from './pages/Transactions'
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-emerald-400">Centsible 💰</h1>
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+
+      <Route path="/dashboard" element={
+        <PrivateRoute>
+          <Dashboard />
+        </PrivateRoute>
+      } />
+
+      <Route path="/transactions" element={
+        <PrivateRoute>
+          <Transactions />
+        </PrivateRoute>
+      } />
+
+      {/* Redirect root to dashboard */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   )
 }
 
