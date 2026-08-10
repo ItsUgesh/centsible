@@ -11,4 +11,17 @@ const getCategories = async (req, res) => {
   }
 }
 
-module.exports = { getCategories }
+const createCategory = async (req, res) => {
+  try {
+    const { name, icon } = req.body
+    if (!name) return res.status(400).json({ error: 'Name is required' })
+    const category = await prisma.category.create({
+      data: { name, icon: icon || '📦', isDefault: false }
+    })
+    res.status(201).json(category)
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+}
+
+module.exports = { getCategories, createCategory }

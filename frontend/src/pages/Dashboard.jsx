@@ -43,13 +43,13 @@ export default function Dashboard() {
       try {
         const [s, m, c, t] = await Promise.all([
           api.get('/dashboard/summary'),
-          api.get('/dashboard/monthly'),
-          api.get('/dashboard/categories'),
+          api.get('/dashboard/by-month'),
+          api.get('/dashboard/by-category'),
           api.get('/transactions?limit=5'),
         ])
         setSummary(s.data)
-        setMonthly(m.data)
-        setCategories(c.data)
+        setMonthly(m.data.data || [])
+        setCategories(c.data.data || [])
         setRecent(t.data.transactions || t.data)
       } catch (err) {
         console.error('Dashboard fetch error:', err)
@@ -107,9 +107,22 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={monthly} barGap={4}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="month" tickFormatter={formatMonth} tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
-                  <Tooltip formatter={(value) => formatCurrency(value)} labelFormatter={formatMonth} contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6' }} />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 12, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => `€${v}`}
+                  />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(value)}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6' }}
+                  />
                   <Bar dataKey="income" fill="#10b981" radius={[6, 6, 0, 0]} name="Income" />
                   <Bar dataKey="expenses" fill="#fca5a5" radius={[6, 6, 0, 0]} name="Expenses" />
                 </BarChart>
@@ -121,23 +134,61 @@ export default function Dashboard() {
 
           {/* Pie chart */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h2 className="text-base font-semibold text-gray-900 mb-6">Spending by Category</h2>
-            {categories.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie data={categories} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="amount" nameKey="name" paddingAngle={3}>
-                    {categories.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6' }} />
-                  <Legend iconType="circle" iconSize={8} formatter={(value) => <span className="text-xs text-gray-600">{value}</span>} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-[220px] text-gray-400 text-sm">No expense data yet</div>
+            <h2 className="text-base font-semibold text-gray-900 mb-4">Spending by Category</h2>
+            {categories.length > 0 ? (() => {
+              const totalSpend = categories.reduce((sum, c) => sum + c.total, 0)
+              return (
+                <div className="flex items-center gap-4">
+                  {/* Donut */}
+                  <div className="flex-shrink-0">
+                    <ResponsiveContainer width={160} height={160}>
+                      <PieChart>
+                        <Pie
+                          data={categories}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={45}
+                          outerRadius={75}
+                          dataKey="total"
+                          nameKey="name"
+                          paddingAngle={3}
+                        >
+                          {categories.map((_, i) => (
+                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value, name) => [formatCurrency(value), name]}
+                          contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6', fontSize: '12px' }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {/* Legend */}
+                  <div className="flex-1 flex flex-col gap-2 min-w-0">
+                    {categories.map((cat, i) => {
+                      const pct = totalSpend > 0 ? Math.round((cat.total / totalSpend) * 100) : 0
+                      return (
+                        <div key={cat.name} className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                            <span className="text-xs text-gray-600 truncate">{cat.icon} {cat.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-xs font-bold text-gray-800">{pct}%</span>
+                            <span className="text-xs text-gray-400 w-14 text-right">{formatCurrency(cat.total)}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })() : (
+              <div className="flex items-center justify-center h-[180px] text-gray-400 text-sm">No expense data yet</div>
             )}
           </div>
+
         </div>
 
         {/* Recent transactions */}
@@ -155,7 +206,7 @@ export default function Dashboard() {
                       {tx.category?.icon || '💸'}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{tx.description || 'Transaction'}</p>
+                      <p className="text-sm font-medium text-gray-900">{tx.description || tx.category?.name || 'Transaction'}</p>
                       <p className="text-xs text-gray-400">{tx.category?.name || 'Uncategorized'} · {new Date(tx.date).toLocaleDateString()}</p>
                     </div>
                   </div>
