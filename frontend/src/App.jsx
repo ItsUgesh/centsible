@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
+import Settings from './pages/Settings'
 
 function App() {
   return (
@@ -20,6 +21,12 @@ function App() {
       <Route path="/transactions" element={
         <PrivateRoute>
           <Transactions />
+        </PrivateRoute>
+      } />
+
+      <Route path="/settings" element={
+        <PrivateRoute>
+          <Settings />
         </PrivateRoute>
       } />
 

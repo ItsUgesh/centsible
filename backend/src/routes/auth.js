@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { register, login, logout } = require('../controllers/authController')
+const { register, login, logout, updateProfile, updatePassword } = require('../controllers/authController')
 const authGuard = require('../middleware/auth')
 const prisma = require('../config/db')
 const passport = require('passport')
@@ -9,6 +9,8 @@ require('../config/passport')
 router.post('/register', register)
 router.post('/login', login)
 router.post('/logout', logout)
+router.put('/profile', authGuard, updateProfile)
+router.put('/password', authGuard, updatePassword)
 
 // GET /api/auth/me
 router.get('/me', authGuard, async (req, res) => {

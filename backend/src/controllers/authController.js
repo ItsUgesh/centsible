@@ -88,4 +88,41 @@ const logout = (req, res) => {
   res.json({ message: 'Logged out' })
 }
 
-module.exports = { register, login, logout }
+// PUT /api/auth/profile
+const updateProfile = async (req, res) => {
+  try {
+    const { name } = req.body
+    if (!name || !name.trim()) return res.status(400).json({ error: 'Name is required' })
+
+    const user = await prisma.user.update({
+      where: { id: req.user.userId },
+      data: { name: name.trim() }
+    })
+    res.json({ message: 'Profile updated', user: { id: user.id, name: user.name, email: user.email } })
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+}
+
+// PUT /api/auth/password
+const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'All fields are required' })
+    if (newPassword.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters' })
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } })
+    if (!user.passwordHash) return res.status(400).json({ error: 'Password change not available for Google accounts' })
+
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash)
+    if (!isMatch) return res.status(401).json({ error: 'Current password is incorrect' })
+
+    const passwordHash = await bcrypt.hash(newPassword, 10)
+    await prisma.user.update({ where: { id: req.user.userId }, data: { passwordHash } })
+    res.json({ message: 'Password updated' })
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+}
+
+module.exports = { register, login, logout, updateProfile, updatePassword }
