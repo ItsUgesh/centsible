@@ -46,7 +46,7 @@ const register = async (req, res) => {
     })
 
     sendToken(res, user)
-    res.status(201).json({ message: 'Account created', user: { id: user.id, name: user.name, email: user.email } })
+    res.status(201).json({ message: 'Account created', user: { id: user.id, name: user.name, email: user.email, provider: user.provider } })
 
   } catch (err) {
     res.status(500).json({ error: 'Server error' })
@@ -75,7 +75,7 @@ const login = async (req, res) => {
     }
 
     sendToken(res, user)
-    res.json({ message: 'Logged in', user: { id: user.id, name: user.name, email: user.email } })
+    res.json({ message: 'Logged in', user: { id: user.id, name: user.name, email: user.email, provider: user.provider } })
 
   } catch (err) {
     res.status(500).json({ error: 'Server error' })

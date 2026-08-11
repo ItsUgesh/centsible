@@ -148,7 +148,7 @@ export default function Settings() {
             </form>
           </Section>
 
-          {/* Password section */}
+          {/* Password section — only for email accounts */}
           {user?.provider === 'email' && (
             <Section title="Change Password" description="Make sure your password is at least 6 characters">
               <form onSubmit={handlePasswordSave} className="flex flex-col gap-4">
