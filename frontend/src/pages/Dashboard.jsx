@@ -36,21 +36,24 @@ export default function Dashboard() {
   const [monthly, setMonthly] = useState([])
   const [categories, setCategories] = useState([])
   const [recent, setRecent] = useState([])
+  const [prediction, setPrediction] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [s, m, c, t] = await Promise.all([
+        const [s, m, c, t, p] = await Promise.all([
           api.get('/dashboard/summary'),
           api.get('/dashboard/by-month'),
           api.get('/dashboard/by-category'),
           api.get('/transactions?limit=5'),
+          api.get('/dashboard/prediction'),
         ])
         setSummary(s.data)
         setMonthly(m.data.data || [])
         setCategories(c.data.data || [])
         setRecent(t.data.transactions || t.data)
+        setPrediction(p.data.prediction)
       } catch (err) {
         console.error('Dashboard fetch error:', err)
       } finally {
@@ -91,11 +94,23 @@ export default function Dashboard() {
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <StatCard label="Total Income" value={formatCurrency(summary?.income)} sub="This month" color="text-emerald-500" />
           <StatCard label="Total Expenses" value={formatCurrency(summary?.expenses)} sub="This month" color="text-red-400" />
           <StatCard label="Balance" value={formatCurrency(summary?.balance)} sub="Income - Expenses" color={summary?.balance >= 0 ? 'text-gray-900' : 'text-red-500'} />
         </div>
+
+        {/* Prediction card */}
+        {prediction !== null && (
+          <div className="bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl p-5 mb-8 flex items-center justify-between shadow-sm">
+            <div>
+              <p className="text-emerald-50 text-sm font-medium">📈 Predicted spending next month</p>
+              <p className="text-white text-2xl font-bold mt-0.5">{formatCurrency(prediction)}</p>
+              <p className="text-emerald-100 text-xs mt-1">Based on your last 3 months average</p>
+            </div>
+            <div className="text-4xl opacity-30">🔮</div>
+          </div>
+        )}
 
         {/* Charts row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
