@@ -15,13 +15,14 @@ passport.use(new GoogleStrategy({
       let user = await prisma.user.findUnique({ where: { email } })
 
       if (!user) {
-        // New user — create them
+        // New user — create them (Google already verified the email)
         user = await prisma.user.create({
           data: {
             email,
             name: profile.displayName,
             avatarUrl: profile.photos[0]?.value,
-            provider: 'google'
+            provider: 'google',
+            emailVerified: true
           }
         })
       }

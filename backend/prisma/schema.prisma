@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  name         String?
-  avatarUrl    String?
-  provider     String
-  passwordHash String?
-  createdAt    DateTime      @default(now())
-  transactions Transaction[]
+  id                      String        @id @default(uuid())
+  email                   String        @unique
+  name                    String?
+  avatarUrl               String?
+  provider                String
+  passwordHash            String?
+  emailVerified           Boolean       @default(false)
+  verificationToken       String?
+  verificationTokenExpiry DateTime?
+  createdAt               DateTime      @default(now())
+  transactions            Transaction[]
 }
 
 model Category {

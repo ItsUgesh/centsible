@@ -24,9 +24,8 @@ export default function Register() {
     setLoading(true)
     setError('')
     try {
-      const res = await api.post('/auth/register', form)
-      login(res.data.user)
-      navigate('/dashboard')
+      await api.post('/auth/register', form)
+      navigate('/check-email', { state: { email: form.email } })
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong')
     } finally {

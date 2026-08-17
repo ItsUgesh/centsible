@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import PrivateRoute from './components/PrivateRoute'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import CheckEmail from './pages/CheckEmail'
+import VerifyEmail from './pages/VerifyEmail'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Settings from './pages/Settings'
@@ -11,6 +13,8 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/check-email" element={<CheckEmail />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
 
       <Route path="/dashboard" element={
         <PrivateRoute>
