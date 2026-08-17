@@ -2,15 +2,26 @@ const express = require('express')
 const router = express.Router()
 const { register, login, logout, updateProfile, updatePassword } = require('../controllers/authController')
 const authGuard = require('../middleware/auth')
+const { validate, registerSchema, loginSchema, profileSchema, passwordSchema } = require('../middleware/validate')
+const rateLimit = require('express-rate-limit')
 const prisma = require('../config/db')
 const passport = require('passport')
 require('../config/passport')
 
-router.post('/register', register)
-router.post('/login', login)
+// Rate limiter — 10 login attempts per 15 minutes
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+
+router.post('/register', validate(registerSchema), register)
+router.post('/login', loginLimiter, validate(loginSchema), login)
 router.post('/logout', logout)
-router.put('/profile', authGuard, updateProfile)
-router.put('/password', authGuard, updatePassword)
+router.put('/profile', authGuard, validate(profileSchema), updateProfile)
+router.put('/password', authGuard, validate(passwordSchema), updatePassword)
 
 // GET /api/auth/me
 router.get('/me', authGuard, async (req, res) => {

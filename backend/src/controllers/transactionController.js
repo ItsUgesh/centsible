@@ -3,23 +3,27 @@ const prisma = require('../config/db')
 // GET /api/transactions
 const getTransactions = async (req, res) => {
   try {
-    const { type, categoryId, month, year } = req.query
+    const { type, categoryId, month, limit } = req.query
     const userId = req.user.userId
 
     const where = { userId }
 
     if (type) where.type = type
     if (categoryId) where.categoryId = parseInt(categoryId)
-    if (month && year) {
-      const start = new Date(year, month - 1, 1)
-      const end = new Date(year, month, 0, 23, 59, 59)
+
+    // month arrives as "2026-08" from the frontend
+    if (month) {
+      const [yr, mo] = month.split('-')
+      const start = new Date(parseInt(yr), parseInt(mo) - 1, 1)
+      const end = new Date(parseInt(yr), parseInt(mo), 0, 23, 59, 59)
       where.date = { gte: start, lte: end }
     }
 
     const transactions = await prisma.transaction.findMany({
       where,
       include: { category: true },
-      orderBy: { date: 'desc' }
+      orderBy: { date: 'desc' },
+      ...(limit ? { take: parseInt(limit) } : {})
     })
 
     res.json({ transactions })
