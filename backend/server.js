@@ -12,6 +12,9 @@ const authRoutes = require('./src/routes/auth')
 const app = express()
 const PORT = process.env.PORT || 3000
 
+// Trust proxy for secure cross-site cookies behind reverse proxies (Render)
+app.set('trust proxy', 1)
+
 // Middleware
 app.use(express.json())
 app.use(cookieParser())
