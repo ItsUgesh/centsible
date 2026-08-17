@@ -28,7 +28,7 @@ export default function Login() {
     setError('')
     try {
       const res = await api.post('/auth/login', form)
-      login(res.data.user)
+      login(res.data.user, res.data.token)
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong')

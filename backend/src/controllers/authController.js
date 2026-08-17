@@ -18,6 +18,8 @@ const sendToken = (res, user) => {
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   })
+
+  return token
 }
 
 // POST /api/auth/register
@@ -99,8 +101,8 @@ const login = async (req, res) => {
       return res.status(403).json({ error: 'Please verify your email before logging in.', code: 'EMAIL_NOT_VERIFIED' })
     }
 
-    sendToken(res, user)
-    res.json({ message: 'Logged in', user: { id: user.id, name: user.name, email: user.email, provider: user.provider } })
+    const token = sendToken(res, user)
+    res.json({ message: 'Logged in', token, user: { id: user.id, name: user.name, email: user.email, provider: user.provider } })
 
   } catch (err) {
     res.status(500).json({ error: 'Server error' })
