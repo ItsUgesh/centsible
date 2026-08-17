@@ -3,7 +3,7 @@ const { Resend } = require('resend')
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const sendVerificationEmail = async (to, name, token) => {
-  const verifyUrl = `http://localhost:5173/verify-email?token=${token}`
+  const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`
 
   const { error } = await resend.emails.send({
     from: 'Centsible <onboarding@resend.dev>',

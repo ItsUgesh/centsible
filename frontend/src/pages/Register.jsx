@@ -34,7 +34,7 @@ export default function Register() {
   }
 
   const handleGoogle = () => {
-    window.location.href = 'http://localhost:3000/api/auth/google'
+    window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/auth/google`
   }
 
   return (

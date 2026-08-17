@@ -45,7 +45,7 @@ router.get('/google',
 
 // GET /api/auth/google/callback
 router.get('/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: 'http://localhost:5173/login' }),
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login` }),
   (req, res) => {
     const jwt = require('jsonwebtoken')
     const token = jwt.sign(
@@ -61,7 +61,7 @@ router.get('/google/callback',
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
-    res.redirect('http://localhost:5173/dashboard')
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard`)
   }
 )
 
