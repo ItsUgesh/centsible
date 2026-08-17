@@ -34,7 +34,10 @@ export default function Transactions() {
   const [error, setError] = useState('')
   const [deleteId, setDeleteId] = useState(null)
   const [filterType, setFilterType] = useState('')
-  const [filterMonth, setFilterMonth] = useState('')
+  const [filterMonth, setFilterMonth] = useState(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
 
   // Category modal state
   const [showCatModal, setShowCatModal] = useState(false)
@@ -185,9 +188,13 @@ export default function Transactions() {
             onChange={e => setFilterMonth(e.target.value)}
             className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white"
           />
-          {(filterType || filterMonth) && (
+          {(filterType || filterMonth !== `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`) && (
             <button
-              onClick={() => { setFilterType(''); setFilterMonth('') }}
+              onClick={() => {
+                setFilterType('')
+                const now = new Date()
+                setFilterMonth(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`)
+              }}
               className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors"
             >
               Clear filters
