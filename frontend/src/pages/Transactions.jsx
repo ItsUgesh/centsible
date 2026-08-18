@@ -34,6 +34,7 @@ export default function Transactions() {
   const [error, setError] = useState('')
   const [deleteId, setDeleteId] = useState(null)
   const [filterType, setFilterType] = useState('')
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const [filterMonth, setFilterMonth] = useState(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -147,46 +148,81 @@ export default function Transactions() {
       <div className="p-6 lg:p-10 max-w-5xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Transactions
             </h1>
-            <p className="text-gray-400 mt-1">Manage your income and expenses</p>
+            <p className="text-gray-400 text-sm mt-0.5">Manage your income and expenses</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <button
               onClick={() => { setCatForm(EMPTY_CAT_FORM); setCatError(''); setShowCatModal(true) }}
-              className="border border-gray-200 text-gray-600 font-medium px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-sm"
+              className="flex-1 sm:flex-none border border-gray-200 text-gray-700 font-medium px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-sm text-center justify-center flex items-center whitespace-nowrap"
             >
               + Category
             </button>
             <button
               onClick={openAdd}
-              className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold px-5 py-2.5 rounded-xl hover:from-emerald-600 hover:to-cyan-600 transition-all duration-200 shadow-sm text-sm"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold px-4 sm:px-5 py-2.5 rounded-xl hover:from-emerald-600 hover:to-cyan-600 transition-all duration-200 shadow-sm text-sm whitespace-nowrap"
             >
-              + Add Transaction
+              <span>+</span> Add Transaction
             </button>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <select
-            value={filterType}
-            onChange={e => setFilterType(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white"
-          >
-            <option value="">All types</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
+        <div className="flex flex-wrap items-center gap-2.5 mb-6">
+          {/* Custom Type Filter Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+              className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2 text-sm text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white transition"
+            >
+              <span>{filterType === 'income' ? 'Income' : filterType === 'expense' ? 'Expense' : 'All types'}</span>
+              <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showTypeDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showTypeDropdown && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowTypeDropdown(false)} />
+                <div className="absolute left-0 mt-1.5 w-36 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-20 animate-in fade-in zoom-in-95 duration-100">
+                  {[
+                    { value: '', label: 'All types' },
+                    { value: 'income', label: 'Income', icon: '↗' },
+                    { value: 'expense', label: 'Expense', icon: '↘' }
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        setFilterType(option.value)
+                        setShowTypeDropdown(false)
+                      }}
+                      className={`w-full text-left px-3.5 py-2 text-sm flex items-center justify-between transition ${
+                        filterType === option.value
+                          ? 'bg-emerald-50 text-emerald-600 font-semibold'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span>{option.label}</span>
+                      {filterType === option.value && <span className="text-emerald-500 text-xs">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           <input
             type="month"
             value={filterMonth}
             onChange={e => setFilterMonth(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white"
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white w-36 sm:w-40"
           />
           {(filterType || filterMonth !== `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`) && (
             <button
@@ -195,7 +231,7 @@ export default function Transactions() {
                 const now = new Date()
                 setFilterMonth(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`)
               }}
-              className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors"
+              className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors whitespace-nowrap"
             >
               Clear filters
             </button>
@@ -203,7 +239,7 @@ export default function Transactions() {
         </div>
 
         {/* Transactions list */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="w-7 h-7 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin" />
@@ -211,28 +247,30 @@ export default function Transactions() {
           ) : transactions.length > 0 ? (
             <div className="divide-y divide-gray-50">
               {transactions.map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors group">
-                  <div className="flex items-center gap-3">
+                <div key={tx.id} className="flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors group gap-2">
+                  {/* Left info */}
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg flex-shrink-0">
                       {tx.category?.icon || '💸'}
                     </div>
-                    <div>
-                      {/* Fix 1: show description if exists, else category name */}
-                      <p className="text-sm font-medium text-gray-900">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-900 truncate">
                         {tx.description || tx.category?.name || 'Transaction'}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-400 truncate">
                         {tx.category?.name || 'Uncategorized'} · {new Date(tx.date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`text-sm font-semibold ${tx.type === 'income' ? 'text-emerald-500' : 'text-red-400'}`}>
+
+                  {/* Right amount & actions */}
+                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <span className={`text-sm sm:text-base font-semibold whitespace-nowrap text-right ${tx.type === 'income' ? 'text-emerald-500' : 'text-red-400'}`}>
                       {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
                     </span>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => openEdit(tx)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">✏️</button>
-                      <button onClick={() => setDeleteId(tx.id)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">🗑️</button>
+                    <div className="flex items-center gap-0.5 sm:gap-1 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openEdit(tx)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Edit">✏️</button>
+                      <button onClick={() => setDeleteId(tx.id)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete">🗑️</button>
                     </div>
                   </div>
                 </div>
@@ -246,6 +284,7 @@ export default function Transactions() {
           )}
         </div>
       </div>
+
 
       {/* ── Add/Edit Modal ── */}
       {showModal && (
