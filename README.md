@@ -10,7 +10,7 @@
 
 **Track income. Control spending. Build wealth.**
 
-[🌐 Live Demo](#) · [🐛 Report Bug](https://github.com/ItsUgesh/centsible/issues) · [✨ Request Feature](https://github.com/ItsUgesh/centsible/issues) · [👤 Author Portfolio](https://www.ugeshsimkhada.com.np/)
+[🌐 Live Demo](https://centsible.uk) · [🐛 Report Bug](https://github.com/ItsUgesh/centsible/issues) · [✨ Request Feature](https://github.com/ItsUgesh/centsible/issues) · [👤 Author Portfolio](https://www.ugeshsimkhada.com.np/)
 
 </div>
 
