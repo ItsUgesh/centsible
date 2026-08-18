@@ -35,6 +35,7 @@ export default function Transactions() {
   const [deleteId, setDeleteId] = useState(null)
   const [filterType, setFilterType] = useState('')
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
+  const [activeMenuId, setActiveMenuId] = useState(null)
   const [filterMonth, setFilterMonth] = useState(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -239,7 +240,7 @@ export default function Transactions() {
         </div>
 
         {/* Transactions list */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="w-7 h-7 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin" />
@@ -263,14 +264,57 @@ export default function Transactions() {
                     </div>
                   </div>
 
-                  {/* Right amount & actions */}
-                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  {/* Right amount & 3-dot action menu */}
+                  <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                     <span className={`text-sm sm:text-base font-semibold whitespace-nowrap text-right ${tx.type === 'income' ? 'text-emerald-500' : 'text-red-400'}`}>
                       {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
                     </span>
-                    <div className="flex items-center gap-0.5 sm:gap-1 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => openEdit(tx)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Edit">✏️</button>
-                      <button onClick={() => setDeleteId(tx.id)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete">🗑️</button>
+
+                    {/* 3-dot action dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setActiveMenuId(activeMenuId === tx.id ? null : tx.id)
+                        }}
+                        className="p-1 rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-colors"
+                        title="Options"
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                        </svg>
+                      </button>
+
+                      {activeMenuId === tx.id && (
+                        <>
+                          <div className="fixed inset-0 z-20" onClick={() => setActiveMenuId(null)} />
+                          <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-30 animate-in fade-in zoom-in-95 duration-100">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveMenuId(null)
+                                openEdit(tx)
+                              }}
+                              className="w-full text-left px-3.5 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition"
+                            >
+                              <span className="text-xs">✏️</span>
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveMenuId(null)
+                                setDeleteId(tx.id)
+                              }}
+                              className="w-full text-left px-3.5 py-2 text-sm text-red-500 hover:bg-red-50 flex items-center gap-2 transition"
+                            >
+                              <span className="text-xs">🗑️</span>
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
