@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '../services/api'
 import Layout from '../components/Layout'
+import MonthPicker from '../components/MonthPicker'
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat('en-EU', { style: 'currency', currency: 'EUR' }).format(amount || 0)
@@ -219,11 +220,9 @@ export default function Transactions() {
               </>
             )}
           </div>
-          <input
-            type="month"
+          <MonthPicker
             value={filterMonth}
-            onChange={e => setFilterMonth(e.target.value)}
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white w-36 sm:w-40"
+            onChange={setFilterMonth}
           />
           {(filterType || filterMonth !== `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`) && (
             <button
