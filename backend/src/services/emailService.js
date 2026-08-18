@@ -6,7 +6,7 @@ const sendVerificationEmail = async (to, name, token) => {
   const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`
 
   const { error } = await resend.emails.send({
-    from: 'Centsible <onboarding@resend.dev>',
+    from: 'Centsible <noreply@mail.ugeshsimkhada.com.np>',
     to,
     subject: 'Verify your Centsible account',
     html: `
