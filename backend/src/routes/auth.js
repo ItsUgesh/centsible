@@ -1,8 +1,26 @@
 const express = require('express')
 const router = express.Router()
-const { register, login, logout, updateProfile, updatePassword, verifyEmail, resendVerification } = require('../controllers/authController')
+const {
+  register,
+  login,
+  logout,
+  updateProfile,
+  updatePassword,
+  verifyEmail,
+  resendVerification,
+  forgotPassword,
+  resetPassword
+} = require('../controllers/authController')
 const authGuard = require('../middleware/auth')
-const { validate, registerSchema, loginSchema, profileSchema, passwordSchema } = require('../middleware/validate')
+const {
+  validate,
+  registerSchema,
+  loginSchema,
+  profileSchema,
+  passwordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema
+} = require('../middleware/validate')
 const rateLimit = require('express-rate-limit')
 const prisma = require('../config/db')
 const passport = require('passport')
@@ -17,11 +35,22 @@ const loginLimiter = rateLimit({
   legacyHeaders: false
 })
 
+// Rate limiter — 5 forgot password requests per 15 minutes
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many password reset requests. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+
 router.post('/register', validate(registerSchema), register)
 router.post('/login', loginLimiter, validate(loginSchema), login)
 router.post('/logout', logout)
 router.post('/verify-email', verifyEmail)
 router.post('/resend-verification', resendVerification)
+router.post('/forgot-password', forgotPasswordLimiter, validate(forgotPasswordSchema), forgotPassword)
+router.post('/reset-password', validate(resetPasswordSchema), resetPassword)
 router.put('/profile', authGuard, validate(profileSchema), updateProfile)
 router.put('/password', authGuard, validate(passwordSchema), updatePassword)
 

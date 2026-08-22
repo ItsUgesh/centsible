@@ -17,6 +17,8 @@ model User {
   emailVerified           Boolean       @default(false)
   verificationToken       String?
   verificationTokenExpiry DateTime?
+  resetPasswordToken      String?
+  resetPasswordExpires    DateTime?
   createdAt               DateTime      @default(now())
   transactions            Transaction[]
 }

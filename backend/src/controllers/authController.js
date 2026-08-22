@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const prisma = require('../config/db')
-const { sendVerificationEmail } = require('../services/emailService')
+const { sendVerificationEmail, sendPasswordResetEmail, sendGoogleAccountNoticeEmail } = require('../services/emailService')
 
 // Helper — creates JWT and sets it as a cookie
 const sendToken = (res, user) => {
@@ -210,4 +210,89 @@ const resendVerification = async (req, res) => {
   }
 }
 
-module.exports = { register, login, logout, updateProfile, updatePassword, verifyEmail, resendVerification }
+// POST /api/auth/forgot-password
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body
+
+    const user = await prisma.user.findUnique({ where: { email } })
+
+    // Generic safe response to prevent email enumeration
+    const genericResponse = { message: 'If an account exists with this email, a password reset link has been sent.' }
+
+    if (!user) {
+      return res.json(genericResponse)
+    }
+
+    // If user registered with Google, inform them they don't have a password
+    if (user.provider === 'google') {
+      await sendGoogleAccountNoticeEmail(user.email, user.name)
+      return res.json(genericResponse)
+    }
+
+    // Generate random secure token and 1-hour expiry
+    const resetPasswordToken = crypto.randomBytes(32).toString('hex')
+    const resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken,
+        resetPasswordExpires
+      }
+    })
+
+    await sendPasswordResetEmail(user.email, user.name, resetPasswordToken)
+
+    res.json(genericResponse)
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+}
+
+// POST /api/auth/reset-password
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body
+
+    const user = await prisma.user.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { gt: new Date() }
+      }
+    })
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired password reset link' })
+    }
+
+    // Hash new password
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    // Update password and clear reset token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        resetPasswordToken: null,
+        resetPasswordExpires: null
+      }
+    })
+
+    res.json({ message: 'Password reset successfully. You can now log in.' })
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+}
+
+module.exports = {
+  register,
+  login,
+  logout,
+  updateProfile,
+  updatePassword,
+  verifyEmail,
+  resendVerification,
+  forgotPassword,
+  resetPassword
+}

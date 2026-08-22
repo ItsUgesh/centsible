@@ -138,9 +138,9 @@ export default function Login() {
             <div>
               <div className="flex justify-between items-center mb-1.5">
                 <label className="text-sm font-medium text-gray-700">Password</label>
-                <span className="text-xs text-emerald-500 cursor-pointer hover:text-emerald-600 transition-colors">
+                <Link to="/forgot-password" className="text-xs text-emerald-500 hover:text-emerald-600 transition-colors font-medium">
                   Forgot password?
-                </span>
+                </Link>
               </div>
               <input
                 type="password"

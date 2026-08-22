@@ -46,6 +46,15 @@ const categorySchema = z.object({
   icon: z.string().optional()
 })
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address')
+})
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Reset token is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters')
+})
+
 module.exports = {
   validate,
   registerSchema,
@@ -53,5 +62,7 @@ module.exports = {
   transactionSchema,
   profileSchema,
   passwordSchema,
-  categorySchema
+  categorySchema,
+  forgotPasswordSchema,
+  resetPasswordSchema
 }
