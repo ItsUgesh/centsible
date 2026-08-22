@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import Layout from '../components/Layout'
@@ -27,7 +28,13 @@ function Field({ label, children }) {
 const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition text-sm disabled:bg-gray-50 disabled:text-gray-400"
 
 export default function Settings() {
-  const { user, login: setUser } = useAuth()
+  const { user, login: setUser, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
+  }
 
   // Profile
   const [name, setName] = useState(user?.name || '')
@@ -216,6 +223,28 @@ export default function Settings() {
                 <span className="text-gray-400">Developer</span>
                 <span className="text-gray-700 font-medium">Ugesh Simkhada</span>
               </div>
+            </div>
+          </Section>
+
+          {/* Account Actions / Sign Out */}
+          <Section title="Account" description="Manage your current session">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900">Signed in as</p>
+                <p className="text-xs text-gray-400">{user?.email}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-2 border border-red-200 text-red-500 hover:bg-red-50 font-semibold px-4 py-2 rounded-xl transition text-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Sign out
+              </button>
             </div>
           </Section>
 
